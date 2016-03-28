@@ -53,6 +53,13 @@ public class Main {
         return rankValues;
     }
 
+    static boolean isStraightFlush(HashSet<Card> hand){
+        if (isFlush(hand) && isStraight(hand)){
+            return true;
+        }
+        return false;
+    }
+
     static boolean isRoyalFlush(HashSet<Card> hand){
         if (isFlush(hand) && isStraight(hand)){
             ArrayList<Integer> royalFlush =
@@ -61,9 +68,32 @@ public class Main {
                         return card.rank.ordinal();
                     })
                     .collect(Collectors.toCollection(ArrayList<Integer>::new));
-
-
+            Integer count = 0;
+        for (Integer rank: royalFlush) {
+            count += rank;
         }
+            if (count == 33){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean isTwoPair(HashSet<Card> hand){
+        ArrayList<Integer> ranks =
+                hand.stream()
+                .map(card -> {
+                    return card.rank.ordinal();
+                })
+                .collect(Collectors.toCollection(ArrayList<Integer>::new));
+        if (Collections.frequency(ranks, ranks.get(0)) == 2) {
+            if ((ranks.get(0) != ranks.get(1)) && (Collections.frequency(ranks, ranks.get(1)) == 2)){
+                return true;
+            }else if ((ranks.get(0) != ranks.get(2)) && (Collections.frequency(ranks, ranks.get(2)) == 2)){
+                return true;
+            }
+        }
+        return false;
     }
 
     static boolean isStraight(HashSet<Card> hand) {
@@ -93,6 +123,32 @@ public class Main {
         return false;
     }
 
+    static boolean isThreeOfAKind(HashSet<Card> hand) {
+        HashSet<Card.Rank> ranks =
+                hand.stream()
+                .map(card -> {
+                    return card.rank;
+                })
+                .collect(Collectors.toCollection(HashSet<Card.Rank>::new));
+        if (ranks.size() == 2 && !isTwoPair(hand)){
+            return true;
+        }
+        return false;
+    }
+
+    static boolean isFourOfAKind(HashSet<Card> hand) {
+        HashSet<Card.Rank> ranks =
+                hand.stream()
+                .map(card -> {
+                    return card.rank;
+                })
+                .collect(Collectors.toCollection(HashSet<Card.Rank>::new));
+        if (ranks.size() == 1){
+            return true;
+        }
+        return false;
+    }
+
     static boolean isFlush(HashSet<Card> hand) {
         HashSet<Card.Suit> suits =
                 hand.stream()
@@ -118,7 +174,6 @@ public class Main {
 //        long endTime = System.currentTimeMillis();
         hands = hands.stream()
                 .filter(Main::isFlush)
-                .filter(Main::isStraight)
                 .collect(Collectors.toCollection(HashSet<HashSet<Card>>::new));
         System.out.println(hands.size());
 
