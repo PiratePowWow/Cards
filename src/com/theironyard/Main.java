@@ -1,7 +1,9 @@
 package com.theironyard;
 
-import java.util.HashSet;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -41,6 +43,56 @@ public class Main {
         return hands;
     }
 
+    static HashMap<Card.Rank, Integer> rankValues() {
+        HashMap<Card.Rank, Integer> rankValues = new HashMap<>();
+        int value = 0;
+        for (Card.Rank rank : Card.Rank.values()){
+            rankValues.put(rank, value);
+            value ++;
+        }
+        return rankValues;
+    }
+
+    static boolean isRoyalFlush(HashSet<Card> hand){
+        if (isFlush(hand) && isStraight(hand)){
+            ArrayList<Integer> royalFlush =
+                    hand.stream()
+                    .map(card -> {
+                        return card.rank.ordinal();
+                    })
+                    .collect(Collectors.toCollection(ArrayList<Integer>::new));
+
+
+        }
+    }
+
+    static boolean isStraight(HashSet<Card> hand) {
+        HashSet<Integer> rankSet =
+                hand.stream()
+                .map(card -> {
+                        return card.rank.ordinal();
+                })
+                .collect(Collectors.toCollection(HashSet<Integer>::new));
+        ArrayList<Integer> ranks = new ArrayList<>(rankSet);
+        Collections.sort(ranks);
+        if (ranks.size()==4){
+            if ((ranks.get(0) != 0) && (ranks.get(3) - ranks.get(0) == 3)){
+                return true;
+            }else if ((ranks.get(0) == 0) && ((ranks.get(3) - ranks.get(0) == 3))){
+                return true;
+            }else if (ranks.get(0) == 0) {
+                Integer count = 0;
+                for (Integer rank : ranks) {
+                    count += rank;
+                }
+                if (count == 33){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     static boolean isFlush(HashSet<Card> hand) {
         HashSet<Card.Suit> suits =
                 hand.stream()
@@ -52,19 +104,23 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        long beginTime = System.currentTimeMillis();
+//        long beginTime = System.currentTimeMillis();
         HashSet<Card> deck = createDeck();
-//        Card c1 = new Card(Card.Suit.SPADES, Card.Rank.ACE); //Must override
+//        Card c1 = new Card(Card.Suit.SPADES, Card.Rank.ACE); //Must override equals because Java does not recognize equality of the two cards
 //        Card c2 = new Card(Card.Suit.SPADES, Card.Rank.ACE);
 //        HashSet<Card> cards = new HashSet<>();
 //        cards.add(c1);
 //        cards.add(c2);
         HashSet<HashSet<Card>> hands = createHands(deck);
+//        hands = hands.stream()
+//                .filter(Main::isFlush)
+//                .collect(Collectors.toCollection(HashSet<HashSet<Card>>::new));
+//        long endTime = System.currentTimeMillis();
         hands = hands.stream()
                 .filter(Main::isFlush)
+                .filter(Main::isStraight)
                 .collect(Collectors.toCollection(HashSet<HashSet<Card>>::new));
-        long endTime = System.currentTimeMillis();
-        System.out.println(endTime - beginTime);
+        System.out.println(hands.size());
 
     }
 }
